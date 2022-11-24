@@ -78,31 +78,40 @@ void nuevo_Medico(Medicos* lista, int tam) {
 }*/
 
 //FUNCIONA BIEN
-Medicos Buscar_Medico_Viejo(Medicos* Lista_Medicos, Pacientes paciente, int tam) {
+Medicos* Buscar_Medico_Viejo(Medicos* Lista_Medicos, Consultas consulta, Pacientes paciente, int tam){
 
-	Medicos aux;
+	Medicos* aux=NULL;
 	for (int i = 0; i < tam; i++) {
-		if (paciente.consulta.matricula_med == Lista_Medicos[i].matricula && Lista_Medicos[i].activo == true) { //chequeamos solo si encuentra ==matricula, hay que ver del boolean agenda_llena
-			//si encuentra al medico que lo habia atendido antes y este se encuentra disponible, misma especialidad???
-			aux = Lista_Medicos[i]; //encontramos al medico
+		if (consulta.dni_pac == paciente.dni) {
+			if (consulta.matricula_med == Lista_Medicos[i].matricula && Lista_Medicos[i].activo == true) { //chequeamos solo si encuentra ==matricula, hay que ver del boolean agenda_llena
+				//si encuentra al medico que lo habia atendido antes y este se encuentra disponible, misma especialidad???
+				aux = Lista_Medicos[i]; //encontramos al medico
+			}
 		}
+		else
+			return NULL;
+		
 	}
 	return aux;//retornamos el struct del medico, significa que se puede asignar turno con el medico 
 }
 
 //FUNCIONA BIEN
-Medicos Buscar_Medico_Nuevo(Medicos* Lista_Medicos, Pacientes paciente, int tam) {
+Medicos* Buscar_Medico_Nuevo(Medicos* Lista_Medicos, Consultas* consulta, Pacientes paciente, int tam) {
 
 	Medicos aux;
 	for (int i = 0; i < tam; i++) {
-		if (paciente.consulta.matricula_med != Lista_Medicos[i].matricula && Lista_Medicos[i].activo == true && Lista_Medicos[i].agenda_llena==false) { //chequeamos solo si encuentra ==matricula, hay que ver del boolean agenda_llena
-			//le asigna el primer medico activo y que no sea el que lo haya atendido antes, tambien que sea de la especialidad que busca
-			aux = Lista_Medicos[i];
+		if (consulta.dni_pac == paciente.dni) {
+			if (consulta.matricula_med != Lista_Medicos[i].matricula && Lista_Medicos[i].activo == true) { //chequeamos solo si encuentra ==matricula, hay que ver del boolean agenda_llena
+				//le asigna el primer medico activo y que no sea el que lo haya atendido antes, tambien que sea de la especialidad que busca
+				aux = Lista_Medicos[i];
+			}
 		}//habria que ver porque deberia fijarse si el medico tiene agenda llena o algo asi, entonces recorre la lista y se fija de asignar turno con el primer medico que encuentre
-		
+		else
+			return NULL;
 	}
 	return aux;//retornamos el medico
 }
+
 void agregar(Pacientes*& lista_pac, Pacientes paciente, int* tamactual) {
 	*tamactual = *tamactual + 1;
 	int i = 0;
@@ -135,6 +144,69 @@ void resize(Pacientes*& lista_pac, int* tamactual, int cantidad_aumentar) {
 
 	return;
 }
+/*
+bool Asignar_Turno(Medicos* Lista_Medicos, Pacientes paciente_a_asignar_turno) {
+	cout << "El paciente desea asignar un turno con el medico que lo atendió en su ultima consulta?" << endl;
+	int respuesta1 = rand() % 2;
+	if (respuesta1 == 1) {//true
+		cout << "El paciente quiere programar un turno con su antiguo medico. Procedemos a buscar al medico en la lista y verificar disponibilidad");
+		Medicos aux1;
+		aux1 = Buscar_Medico_Viejo(Lista_Medicos, paciente_a_asignar_turno, 100);
+		if (aux1 != NULL) {//distinto de null, o sea encontro el struct del medico
+			cout << "Se ha encontrado al medico, cuyos datos son: " << endl;
+			cout << aux1.nombre << "," << aux1.apellido << "," << aux1.especialidad << endl;
+			//una vez que hay match, habria que guardar al paciente en la lista de pacientes_agenda asi se informa que tiene turno
+			//no se si habrian que modificar los datos de la consulta ya que se modifican tecnicamente
+			return true;
+		}
+		else { //igual a null, o sea no encontro el struct del medico
+			cout << "No se ha encontrado al medico, desea asignar un turno con un nuevo medico?: " << endl;
+			int respuesta2 = rand() % 2;
+
+			if (respuesta2 == 1) {//true
+
+				cout << "El paciente desea programar un turno con un nuevo médico. Procedemos a buscar al medico en la lista y verificar disponibilidad");
+
+				Medicos aux2;
+				aux2 = Buscar_Medico_Nuevo(Lista_Medicos, paciente_a_asignar_turno, 100);
+
+				if (aux2 != NULL) {
+					cout << "Se ha encontrado un medico con disponibilidad, cuyos datos son: " << endl;
+					cout << aux2.nombre << "," << aux2.apellido << "," << aux2.especialidad << endl;
+					//una vez que hay match, habria que guardar al paciente en la lista de pacientes_agenda asi se informa que tiene turno
+					//no se si habrian que modificar los datos de la consulta ya que se modifican tecnicamente
+					return true;//turno asignado con exito
+				}
+				else {//no se encontro a ningun medico disponible
+					cout << "No hay medicos disponibles para la especialidad que desea." << endl;
+					//en este caso procedemos a dejar en standby y llamar en un tiempo, ofrecer otra cosa o archivamos directamente
+					return false;//turno no asignado
+				}
+			}
+		}
+
+	}
+	else { //==0 o sea false
+		cout << "El paciente desea asignar turno con un nuevo medico. Procedemos a buscar en la lista de medicos y verificar disponibilidad." << endl;
+		Medicos aux3;
+		aux3 = Buscar_Medico_Nuevo(Lista_Medicos, paciente_a_asignar_turno, 100);
+
+		if (aux3 != NULL) {
+			cout << "Se ha encontrado un medico con disponibilidad, cuyos datos son: " << endl;
+			cout << aux3.nombre << "," << aux3.apellido << "," << aux3.especialidad << endl;
+			//una vez que hay match, habria que guardar al paciente en la lista de pacientes_agenda asi se informa que tiene turno
+			//no se si habrian que modificar los datos de la consulta ya que se modifican tecnicamente
+			return true;//turno asignado con exito
+		}
+		else {//no se encontro a ningun medico disponible
+			cout << "No hay medicos disponibles para la especialidad que desea." << endl;
+			//en este caso procedemos a dejar en standby y llamar en un tiempo, ofrecer otra cosa o archivamos directamente
+			return false;//turno no asignado
+		}
+	}
+
+}*/
+/*
 Pacientes* leer_archivos_pacientes(string a1) {
 
 	Pacientes* l_pac = new Pacientes[0];
@@ -189,11 +261,8 @@ Pacientes* LeerArchivo(string archivo)  //leemos todos los archivos y guardamos 
 		agregar(Lista_pacientes, aux, &tamact_p);
 	}
 	pacientes.close();
-}
-/*
-Pacientes* read(string a1) {
-	Pacientes* l_pac = new Pacientes[0];
-	Pacientes aux;
+	}*/
+/*void read() {
 	fstream fr;
 	string name;
 	string dni;
@@ -204,6 +273,30 @@ Pacientes* read(string a1) {
 	string role;
 	string dummy;
 	string estado;
+	char coma;
+	int nota1, nota2, nota3, nota4;
+
+	fr.open("/Pacientes.csv", ios::in);
+	if (!fr.is_open())
+		cout << "Error al leer archivo";
+	else {
+		getline(fr, dummy);
+		fr >> dummy >> coma >> dummy >> coma >> dummy >> coma >> dummy >> coma >> dummy >> coma >> dummy;
+		while (fr) {
+			fr >> dni >> coma >> name >> coma >> apellido >> coma >> sexo >> coma >> fecha >> coma >> estado >> coma >> obra_social;
+			cout << name;
+		}
+
+	}
+
+
+}*/
+
+/*Pacientes* read_archivo(string a1) {
+	Pacientes* l_pac = new Pacientes[0];
+	Pacientes aux;
+	fstream fr;
+	string dummy;
 	char coma;
 	int nota1, nota2, nota3, nota4;
 	int tamact = 0;
@@ -217,10 +310,78 @@ Pacientes* read(string a1) {
 		while (fr) {
 			fr >> aux.dni >> coma >> aux.apellido >> coma >> aux.nombre >> coma >> aux.sexo >> coma >> aux.natalicio >> coma >> aux.estado >> coma >> aux.id_os;
 			cout << aux.nombre << '\n';
+			agregar(l_pac, aux, &tamact);
 		}
 
 	}
-	agregar(l_pac, aux, &tamact);
+	
 
 	return l_pac;
 }*/
+/*
+bool Consultar_fechas_diferencia(Pacientes paciente)
+{
+	int fecha1, fecha2;
+
+	
+	time_t now = time(0); //inicializo la fecha actual
+	tm* aux = localtime(&now); //obtengo fecha actual
+	time_t fecha_actual = mktime(aux); //pasamos la fecha de la computadora a segundos para compararlas
+	time_t fecha_consulta = mktime(&(UltimaConsulta.fecha_turno)); //paso la fecha de la consulta a segundos
+	int dif = 0;
+	dif = difftime(fecha_actual, fecha_consulta) / 3600; //calculo la diferencia de tiempo en segundos, lo retorno y lo paso a horas
+	int horas = dif / 8760; //un año tiene 8760 horas (asumiendo 365 días)
+	if (horas > 10)
+		return 1;
+	else
+		return 0;
+}*/
+/*
+tm Fecha_de_string_a_tm(string fecha)
+{
+	tm estructura;
+	string dia = "";
+	string mes = "";
+	string anio = "";
+	int i = 0;
+	while (i < fecha.length())
+	{
+
+		while (fecha[i] != '/')
+		{
+
+			mes += fecha[i];
+			i++;
+
+
+		}
+		i++;
+		if (fecha[i] == '/')
+			i++;
+		while (fecha[i] != '/')
+		{
+
+			dia += fecha[i];
+			i++;
+
+		}
+		i++;
+		if (fecha[i] == '/')
+			i++;
+		while (fecha[i] != '/' && anio.length() < 4)
+		{
+
+			anio += fecha[i];
+			i++;
+
+		}
+	}
+	int mesi = stoi(mes);
+	int diai = stoi(dia);
+	int anioi = stoi(anio);
+	estructura.tm_wday = diai;
+	estructura.tm_mon = mesi;
+	estructura.tm_year = anioi;
+
+	return estructura;
+}**/
